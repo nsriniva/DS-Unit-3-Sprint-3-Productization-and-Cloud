@@ -1,3 +1,4 @@
 FLASK_APP=twitter_app flask db init 
+#Repeat the following lines on schema change
 FLASK_APP=twitter_app flask db migrate 
 FLASK_APP=twitter_app flask db upgrade 
