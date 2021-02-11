@@ -1,0 +1,20 @@
+<!-- templates/users.html -->
+
+{% extends "layout.html" %} {% block title %}
+<title>Users Page</title>
+{% endblock %} {% block content %}
+
+<h2>Welcome to the Users Page</h2>
+
+<p>{{ message }}</p>
+
+{% if users %}
+<ul>
+    {% for user in users %}
+    <li>{{ user['name'] }}</li>
+    {% endfor %}
+</ul>
+
+{% else %}
+<p>Users not found.</p>
+{% endif %} {% endblock %}
