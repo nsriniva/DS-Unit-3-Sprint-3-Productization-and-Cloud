@@ -3,6 +3,10 @@ from .models import DB, User, Tweet
 
 twitter_routes = Blueprint("twitter_routes", __name__)
 
+@twitter_routes.route('/')
+def default_route():
+    return render_template('layout.html')
+    
 @twitter_routes.route("/users")
 def list_users():
     # SELECT * FROM users
@@ -57,13 +61,14 @@ def create_tweet():
     tweet = request.form['tweet']
     #If the user doesn't already exist add to the user table
     if User.query.filter(User.name==name).first() is None:
+        users = User.query.all()
         new_user = User(name=name, id = len(users)+1)
         DB.session.add(new_user)
         DB.session.commit()
 
     user = User.query.filter(User.name==name).first()
 
-    new_tweet = Tweet(id = len(tweets)+1, text=tweet, user_id=user.id)
+    new_tweet = Tweet(id = len(tweets)+1, text=tweet, user_id=user.id, vect='123')
     DB.session.add(new_tweet)
     DB.session.commit()
     
