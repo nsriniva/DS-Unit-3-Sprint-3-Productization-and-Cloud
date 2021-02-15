@@ -5,7 +5,7 @@ from .models import DB, MIGRATE, User, Tweet
 from .routes2 import twitter_routes
 load_dotenv()
 
-DB_FILE = os.getenv("DB_FILE")
+DB_FILE = 'sqlite2.db' 
 
 DB_FILEPATH = os.path.join(os.path.dirname(__file__), DB_FILE)
 
