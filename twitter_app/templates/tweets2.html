@@ -1,0 +1,26 @@
+<!-- templates/users.html -->
+
+{% extends "layout.html" %} {% block title %}
+<title>Users Page</title>
+{% endblock %} {% block content %}
+
+<h2>Welcome to the Tweets Page</h2>
+
+<p>{{ message }}</p>
+
+{% if tweets %}
+<ul>
+    {% for tweet in tweets %}
+    <li>{{ tweet['text'] }} :: {{ tweet['user'].name }}</li>
+    {% endfor %}
+</ul>
+
+{% else %}
+<p>No Tweets.</p>
+{% endif %}
+
+<form action="/tweets/update" method="POST">
+    <button>Update Tweets</button>
+</form>
+
+{% endblock %}

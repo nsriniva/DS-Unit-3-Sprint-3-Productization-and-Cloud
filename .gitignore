@@ -50,6 +50,8 @@ coverage.xml
 # Translations
 *.mo
 *.pot
+# Flask stuff
+migrations
 
 # Django stuff:
 *.log

@@ -2,17 +2,17 @@ import os
 from flask import Flask
 from dotenv import load_dotenv
 from .models import DB, MIGRATE, User, Tweet
-from .routes import twitter_routes
+from .routes2 import twitter_routes
 load_dotenv()
 
 DB_FILE = os.getenv("DB_FILE")
 
 DB_FILEPATH = os.path.join(os.path.dirname(__file__), DB_FILE)
 
-DB_URI = f'sqlite:////{DB_FILEPATH}'
+DB_URI = f'sqlite:////{DB_FILEPATH}' # using absolute filepath on Mac (recommended)
 
 print(DB_URI)
- # using absolute filepath on Mac (recommended)
+ 
 
 def create_app():
     app = Flask(__name__)

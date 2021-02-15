@@ -11,6 +11,8 @@ flask-sqlalchemy = "*"
 requests = "*"
 flask-migrate = "*"
 python-dotenv = "*"
+tweepy = "*"
+spacy = "*"
 
 [requires]
 python_version = "3.8"
