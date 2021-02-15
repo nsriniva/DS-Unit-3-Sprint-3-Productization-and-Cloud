@@ -1,0 +1,32 @@
+<!-- templates/users.html -->
+
+{% extends "layout2.html" %} {% block title %}
+<title>Users Page</title>
+{% endblock %} {% block content %}
+
+<h2>Welcome to the Users Page</h2>
+
+<p>{{ message }}</p>
+
+{% if users %}
+<ol>
+    {% for user in users %}
+    <li>{{ user['name'] }}
+        <ul>
+            {% for tweet in (user['tweets']|sort(reverse=true,attribute='id'))[:5] %}
+            <li>{{ tweet['text'] }}</li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% endfor %}
+</ol>
+
+{% else %}
+<p>Users not found.</p>
+{% endif %}
+
+<form action="/tweets/update" method="POST">
+    <button>Update Tweets</button>
+</form>
+
+{% endblock %}
