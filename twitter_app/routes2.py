@@ -31,7 +31,7 @@ def list_users():
     users = User.query.all()
     print(users)   
 
-    return render_template("users2.html", message="Here's some users", users=users)
+    return render_template("users2.html", message="Users and their 5 most recent tweets", users=users)
 
 @twitter_routes.route("/users/new")
 def new_user():
