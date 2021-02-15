@@ -16,6 +16,8 @@ TWITTER = tweepy.API(TWITTER_AUTH)
 
 nlp = spacy.load('en_core_web_sm')
 
+def vectorize_tweet(tweet_text):
+    return nlp(tweet_text).vector
 
 twitter_routes = Blueprint("twitter_routes", __name__)
 
@@ -29,44 +31,68 @@ def list_users():
     users = User.query.all()
     print(users)   
 
-    return render_template("users.html", message="Here's some users", users=users)
+    return render_template("users2.html", message="Here's some users", users=users)
 
 @twitter_routes.route("/users/new")
 def new_user():
     return render_template("new_user.html")
 
 @twitter_routes.route("/users/create", methods=["POST"])
-def create_user():
-    users = User.query.all()
-    print(users)
-    print("FORM DATA:", dict(request.form))
-    # todo: store in database
-    # INSERT INTO users ...
+def add_user():
+
     name=request.form['name']
+    twitter_user = TWITTER.get_user(name)
+
     #If the user doesn't already exist add to the user table
-    if User.query.filter(User.name==name).first() is None:
-        new_user = User(name=name, id = len(users)+1)
-        DB.session.add(new_user)
+    if user := User.query.get(twitter_user.id) is None:
+        # create user based on the username passed into the function
+        
+        user = User(name=name, id = twitter_user.id)
+        DB.session.add(user)
         DB.session.commit()
-        flash(f"User {new_user.name} created successfully!", "success")
+        flash(f"User {user.name} created successfully!", "success")
+
     
-    return redirect(f"/users")
-
-@twitter_routes.route("/tweets")
-def list_tweets():
-    # SELECT * FROM tweets
-    tweets = Tweet.query.all()
-    print(tweets)   
-
-    return render_template("tweets2.html", message="Here's some tweets", tweets=tweets)
-
+    return update_tweets()#redirect(f"/users")
 
 @twitter_routes.route("/tweets/update", methods=["POST"])
 def update_tweets():
 
-    new_tweet = Tweet(id = len(tweets)+1, text=tweet, user_id=user.id, vect='123')
-    DB.session.add(new_tweet)
-    DB.session.commit()
+    for user in User.query.all():
+        try:
+            twitter_user = TWITTER.get_user(user.name)
+
+            tweets = twitter_user.timeline(
+                count=200,
+                exclude_replies=True,
+                include_rts=False,
+                tweet_mode="Extended",
+                since_id=user.newest_tweet_id
+            )  # A list of tweets from "username"
+
+            # empty tweets list == false, full tweets list == true
+            if tweets:
+               # updates newest_tweet_id
+                user.newest_tweet_id = tweets[0].id
+
+            for tweet in tweets:
+                # for each tweet we want to create an embedding
+                vectorized_tweet = vectorize_tweet(tweet.text)
+                # create tweet that will be added to our DB
+                db_tweet = Tweet(id=tweet.id, text=tweet.text,
+                                 vect=vectorized_tweet)
+                # append each tweet from "username" to username.tweets
+                user.tweets.append(db_tweet)
+                # Add db_tweet to Tweet DB
+                DB.session.add(db_tweet)
+                flash(f"Tweet {db_tweet.text} added successfully!", "success")
+
+        except Exception as e:
+            print(f'Error processing {user.name}: {e}')
+            raise e
+
+        else:
+            # commit everything to the database
+            DB.session.commit()
     
-    flash(f"Tweet {new_tweet.text} added successfully!", "success")
-    return redirect(f"/tweets")
+    return redirect(f"/users")
