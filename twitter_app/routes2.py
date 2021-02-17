@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request, render_template , flash, redirect
 from .models import DB, User, Tweet
+from .twitter import vectorize_tweet, predict_user
 from os import getenv
 from dotenv import load_dotenv
 import tweepy  # Allows us to interact with Twitter
-import spacy  # Vectorizes our tweets
 
 load_dotenv()
 
@@ -14,10 +14,7 @@ TWITTER_AUTH = tweepy.OAuthHandler(TWITTER_API_KEY, TWITTER_API_KEY_SECRET)
 TWITTER = tweepy.API(TWITTER_AUTH)
 
 
-nlp = spacy.load('en_core_web_sm')
 
-def vectorize_tweet(tweet_text):
-    return nlp(tweet_text).vector
 
 twitter_routes = Blueprint("twitter_routes", __name__)
 
@@ -54,6 +51,30 @@ def add_user():
 
     
     return update_tweets()#redirect(f"/users")
+
+@twitter_routes.route("/compare")
+def compare_users():
+    users = User.query.all()
+    return render_template("predict.html", users=users)
+
+@twitter_routes.route("/predict", methods=["POST"])
+def user_prediction():
+
+    users = {}
+    print(request.form)
+    users[0]=User.query.get(int(request.form['user1']))
+    users[1]=User.query.get(int(request.form['user2']))
+
+    print(users)
+
+    tweet_text = request.form['tweet_text']
+
+    predicted_user = predict_user(users[0], users[1], tweet_text)[0]
+
+    print(predicted_user)
+    
+    return render_template('prediction.html', tweet_text=tweet_text, user=users[predicted_user])
+
 
 @twitter_routes.route("/tweets/update", methods=["POST"])
 def update_tweets():

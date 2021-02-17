@@ -6,7 +6,7 @@ twitter_routes = Blueprint("twitter_routes", __name__)
 @twitter_routes.route('/')
 def default_route():
     return render_template('layout.html')
-    
+
 @twitter_routes.route("/users")
 def list_users():
     # SELECT * FROM users
@@ -36,6 +36,10 @@ def create_user():
     
     return redirect(f"/users")
 
+@twitter_routes.route("/compare")
+def compare_users():
+    users = User.query.all()
+    return render_template("predict.html", users=users)
 
 
 @twitter_routes.route("/tweets")
