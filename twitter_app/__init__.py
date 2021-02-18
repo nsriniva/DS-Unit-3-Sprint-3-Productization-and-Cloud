@@ -28,6 +28,8 @@ def create_app():
     app.register_blueprint(twitter_routes)    
     return app
 
+APP = create_app()
+
 if __name__ == "__main__":
 
     my_app = create_app()
