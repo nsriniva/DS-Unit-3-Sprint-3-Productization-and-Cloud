@@ -15,6 +15,7 @@ tweepy = "*"
 spacy = "*"
 scikit-learn = "*"
 gunicorn = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.8"
