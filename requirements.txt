@@ -36,7 +36,7 @@ python-dateutil
 python-dotenv
 python-editor
 requests-oauthlib
-requests[socks]
+requests
 scikit-learn
 scipy
 six
