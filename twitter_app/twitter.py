@@ -3,9 +3,14 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 import spacy  # Vectorizes our tweets
 
+
 from .models import User
 
-nlp = spacy.load('en_core_web_sm')
+try:
+    nlp = spacy.load('en_core_web_sm')
+except:
+    spacy.cli.download('en_core_web_sm')
+    nlp = spacy.load('en_core_web_sm')
 
 def vectorize_tweet(tweet_text):
     return nlp(tweet_text).vector
