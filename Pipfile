@@ -16,6 +16,7 @@ spacy = "*"
 scikit-learn = "*"
 gunicorn = "*"
 numpy = "*"
+psycopg2 = "*"
 
 [requires]
 python_version = "3.8"

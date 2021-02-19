@@ -29,6 +29,7 @@ oauthlib
 packaging
 pathy
 preshed
+psycopg2
 pydantic
 pyparsing
 pysocks
