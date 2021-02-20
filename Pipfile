@@ -17,6 +17,10 @@ scikit-learn = "*"
 gunicorn = "*"
 numpy = "*"
 psycopg2 = "*"
+py-openaq = "*"
+pandas = "*"
+seaborn = "*"
+matplotlib = "*"
 
 [requires]
 python_version = "3.8"
