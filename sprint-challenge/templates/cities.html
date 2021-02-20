@@ -1,0 +1,32 @@
+<!-- templates/cities.html -->
+
+{% extends "aq_layout.html" %} {% block title %}
+<title>Cities Air Quality</title>
+{% endblock %} {% block content %}
+
+<h2>Air Quality Dashboard</h2>
+
+<h3>{{ message }}</h3>
+
+{% if cities %}
+<ol>
+    {% for city in cities %}
+    <li>{{ city['name'] }}
+        <ul>
+            {% for measure in (city['measurements']|sort(reverse=true,attribute='datetime'))[:5] %}
+            <li style="color:{{ measure['color']}}">{{ measure['pm25'] }}</li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% endfor %}
+</ol>
+
+{% else %}
+<p>No cities being monitored.</p>
+{% endif %}
+
+<form action="/measurements/update" method="POST">
+    <button>Update Measurements</button>
+</form>
+
+{% endblock %}

@@ -1,14 +1,17 @@
 """OpenAQ Air Quality Dashboard with Flask."""
-from flask import Flask
+from flask import Flask, render_template
+from openaq import OpenAQ
+
 
 APP = Flask(__name__)
 
-print(APP)
+API = OpenAQ()
 
 @APP.route('/')
 def root():
     """Base view."""
-    return 'TODO - part 2 and beyond!'
+    status, body = API.cities()
+    return render_template('aq_layout.html')
 
 if __name__ == "__main__":
     

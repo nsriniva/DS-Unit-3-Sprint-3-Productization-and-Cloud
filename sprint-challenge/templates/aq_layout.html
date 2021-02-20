@@ -1,0 +1,41 @@
+<!-- templates/aq_layout.html -->
+
+<!doctype html>
+<html>
+
+<head>
+    {% block title %}
+    <title>Air Quality Web App</title>
+    {% endblock %}
+</head>
+
+<body>
+
+    <!-- SITE NAVIGATION -->
+    <div class="container">
+        <div id="nav">
+            {% block nav %}
+            <h1><a href="/">Air Quality Dashboard</a></h1>
+            <ul>
+                <li><a style="color:green" href="/cities">Cities Air Quality</a></li>
+                <li><a href="/cities/new">Add City</a></li>
+            </ul>
+            {% endblock %}
+        </div>
+        <hr>
+
+        <!-- PAGE CONTENTS -->
+        <div id="content">
+            {% block content %} {% endblock %}
+        </div>
+
+        <!-- FOOTER -->
+        <div id="footer">
+            <hr> &copy; Copyright 2021 Srini Nariangadu |
+            <a href="https://github.com/nsriniva/DS-Unit-3-Sprint-3-Productization-and-Cloud/sprint-challenge">source</a>
+        </div>
+    </div>
+
+</body>
+
+</html>
