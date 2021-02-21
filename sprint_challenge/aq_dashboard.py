@@ -24,10 +24,8 @@ def get_results(data='pm25'):
     if LATEST_MEASUREMENT:
         params['date_from'] = LATEST_MEASUREMENT
 
-    print(params)
     _, _ret = API.measurements(**params)
     
-    print(len(_ret['results']))
     ret = [(elem['date']['utc'], elem['value']) for elem in _ret['results']]
 
     if len(ret):
@@ -46,17 +44,23 @@ class Record(DB.Model):
 @APP.route('/')
 def root():
     """Base view."""
-    return render_template('aq_layout.html')
+    
+    danger_list = Record.query.filter(value >= 10).all()
+    all_list = Record.query.all()
+
+    page_params = {'CITY':CITY, 'COUNTRY':COUNTRY, 'danger_list':danger_list, 'all_list':all_list}
+    return render_template('aq_layout.html', **page_params)
 
 
 @APP.route('/refresh')
 def refresh():
-    """Pull fresh data from Open AQ and replace existing data."""
-    DB.drop_all()
-    DB.create_all()
-    # TODO Get data from OpenAQ, make Record objects with it, and add to db
+    
+    data = get_results()
+    for elem in data:
+        rec = Record(datetime=elem[0], value=elem[1])
+        DB.session.add(rec)
     DB.session.commit()
-    return 'Data refreshed!'
+    return root()
 
 if __name__ == "__main__":
     

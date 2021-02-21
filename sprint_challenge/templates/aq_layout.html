@@ -15,18 +15,44 @@
     <div class="container">
         <div id="nav">
             {% block nav %}
-            <h1><a href="/">Air Quality Dashboard</a></h1>
-            <ul>
-                <li><a style="color:green" href="/cities">Cities Air Quality</a></li>
-                <li><a href="/cities/new">Add City</a></li>
-            </ul>
+            <h1><a href="/">Air Quality Dashboard for {{ CITY }}:{{ COUNTRY }}</a></h1>
+            <h2>Change City</h2>
+
+            <p>Please fill out the form and submit to change the city!</p>
+
+            <form action="/change" method="POST">
+
+                <label>City:</label>
+                <input type="text" name="city_name" placeholder={{ CITY }} value={{ CITY }}>
+                <label>Country Code:</label>
+                <input type="text" name="country_code" placeholder={{ COUNTRY }} value={{ COUNTRY }}>
+                <button>Submit</button>
+            </form>
             {% endblock %}
         </div>
         <hr>
 
         <!-- PAGE CONTENTS -->
         <div id="content">
-            {% block content %} {% endblock %}
+            {% block content %} {% if danger_list %}
+            <ol>
+                {% for danger in danger_list %}
+                <li style="color:red">UTC Time:{{ danger[0] }} Value:{{ danger[1] }}</li>
+                {% endfor %}
+            </ol>
+            {% endif %} {% if all_list %}
+            <ol>
+                {% for all in all_list %}
+                <li>UTC Time:{{ all[0] }} Value:{{ all[1] }}</li>
+                {% endfor %}
+            </ol>
+            {% endif %}
+
+            <form action="/refresh" method="POST">
+                <button>Update Measurements</button>
+            </form>
+
+            {% endblock %}
         </div>
 
         <!-- FOOTER -->
