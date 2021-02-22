@@ -3,7 +3,6 @@ from os import urandom
 from flask import Flask, render_template, request
 from openaq import OpenAQ
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 
 
 CITY = 'Los Angeles'
@@ -16,7 +15,6 @@ APP.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 APP.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 DB = SQLAlchemy(APP)
-MIGRATE = Migrate(APP, DB)
 
 
 API = OpenAQ()
@@ -40,6 +38,11 @@ class Record(DB.Model):
 
 def get_city_from_db():
     global CITY, COUNTRY, LATEST_MEASUREMENT
+
+    try:
+        print(City.__table__.exists())
+    except Exception:
+        DB.create_all()
 
     city = City.query.get(1)
 
@@ -78,7 +81,6 @@ def update_city_in_db():
 def get_results(data='pm25'):
     global LATEST_MEASUREMENT, CITY, COUNTRY
 
-    print(f'{CITY=}', f'{COUNTRY=}')
     params = {'city': CITY, 'parameter': data}
     if COUNTRY:
         params['country'] = COUNTRY
@@ -96,8 +98,22 @@ def get_results(data='pm25'):
     return ret
 
 
-@APP.route('/')
 def root():
+    return str(Record.query.filter(Record.value >= 10).all())
+
+
+def refresh():
+    get_city_from_db()
+    data = get_results()
+    for elem in data:
+        rec = Record(datetime=elem[0], value=elem[1])
+        DB.session.add(rec)
+    DB.session.commit()
+    return 'Data refreshed!'
+
+
+@APP.route('/')
+def root_page():
     """Base view."""
     get_city_from_db()
 
@@ -113,15 +129,11 @@ def root():
 
 
 @APP.route('/refresh', methods=["POST"])
-def refresh():
+def refresh_measure():
 
-    get_city_from_db()
-    data = get_results()
-    for elem in data:
-        rec = Record(datetime=elem[0], value=elem[1])
-        DB.session.add(rec)
-    DB.session.commit()
-    return root()
+    refresh()
+
+    return root_page()
 
 
 @APP.route('/change', methods=["POST"])
@@ -137,21 +149,18 @@ def change():
         return cc
 
     form_data = request.form
-    print(form_data)
 
     CITY = form_data['city_name']
     COUNTRY = sanitize(form_data['country_code'])
 
     LATEST_MEASUREMENT = None
 
-    print(CITY, COUNTRY, LATEST_MEASUREMENT)
-
     DB.drop_all()
     DB.create_all()
 
     update_city_in_db()
 
-    return refresh()
+    return refresh_measure()
 
 
 if __name__ == "__main__":
