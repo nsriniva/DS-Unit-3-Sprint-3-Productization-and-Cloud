@@ -23,9 +23,9 @@
             <form action="/change" method="POST">
 
                 <label>City:</label>
-                <input type="text" name="city_name" placeholder={{ CITY }} value={{ CITY }}>
+                <input type="text" name="city_name" placeholder="{{ CITY }}" value="{{ CITY }}">
                 <label>Country Code:</label>
-                <input type="text" name="country_code" placeholder={{ COUNTRY }} value={{ COUNTRY }}>
+                <input type="text" name="country_code" placeholder="{{ COUNTRY }}" " value="{{ COUNTRY }} ">
                 <button>Submit</button>
             </form>
             {% endblock %}
@@ -33,20 +33,18 @@
         <hr>
 
         <!-- PAGE CONTENTS -->
-        <div id="content">
+        <div id="content ">
             {% block content %} {% if danger_list %}
+
+            <h2>Potentially Risky {{ data }} readings - {{ num_risky}}/{{ num_all }}</h2>
             <ol>
                 {% for danger in danger_list %}
-                <li style="color:red">UTC Time:{{ danger[0] }} Value:{{ danger[1] }}</li>
+                <li style="color:red ">UTC Time:{{ danger.datetime }} Value:{{ danger.value }}</li>
                 {% endfor %}
             </ol>
-            {% endif %} {% if all_list %}
-            <ol>
-                {% for all in all_list %}
-                <li>UTC Time:{{ all[0] }} Value:{{ all[1] }}</li>
-                {% endfor %}
-            </ol>
-            {% endif %}
+            {% else %}
+                <p>No Risky  {{ data }} readings found.</p>
+            {% endif %} 
 
             <form action="/refresh" method="POST">
                 <button>Update Measurements</button>
@@ -56,9 +54,9 @@
         </div>
 
         <!-- FOOTER -->
-        <div id="footer">
+        <div id="footer ">
             <hr> &copy; Copyright 2021 Srini Nariangadu |
-            <a href="https://github.com/nsriniva/DS-Unit-3-Sprint-3-Productization-and-Cloud/sprint-challenge">source</a>
+            <a href="https://github.com/nsriniva/DS-Unit-3-Sprint-3-Productization-and-Cloud/sprint-challenge ">source</a>
         </div>
     </div>
 
