@@ -2,13 +2,12 @@
 from os import urandom
 from flask import Flask, render_template, request
 from openaq import OpenAQ
-from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
 
-CITY='Los Angeles'
-COUNTRY='CL' 
+CITY = 'Los Angeles'
+COUNTRY = 'CL'
 LATEST_MEASUREMENT = None
 
 APP = Flask(__name__)
@@ -29,6 +28,7 @@ class City(DB.Model):
     country = DB.Column(DB.String)
     latest_measurement = DB.Column(DB.String)
 
+
 class Record(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     datetime = DB.Column(DB.String(25))
@@ -37,14 +37,15 @@ class Record(DB.Model):
     def __repr__(self):
         return f'{self.datetime}:{self.value}'
 
+
 def get_city_from_db():
     global CITY, COUNTRY, LATEST_MEASUREMENT
 
     city = City.query.get(1)
 
     if city:
-        COUNTRY=None
-        LATEST_MEASUREMENT=None
+        COUNTRY = None
+        LATEST_MEASUREMENT = None
 
         CITY = city.city
         if city.country:
@@ -62,29 +63,30 @@ def update_city_in_db():
         DB.session.delete(city)
         DB.session.commit()
 
-    params = {'id':1, 'city':CITY, 'country':COUNTRY}
+    params = {'id': 1, 'city': CITY, 'country': COUNTRY}
     if COUNTRY:
         params['country'] = COUNTRY
     if LATEST_MEASUREMENT:
         params['latest_measurement'] = LATEST_MEASUREMENT
-    
 
     city = City(**params)
 
     DB.session.add(city)
     DB.session.commit()
 
+
 def get_results(data='pm25'):
     global LATEST_MEASUREMENT, CITY, COUNTRY
 
-    params = {'city':CITY, 'parameter':data}
+    print(f'{CITY=}', f'{COUNTRY=}')
+    params = {'city': CITY, 'parameter': data}
     if COUNTRY:
-        params['COUNTRY'] = COUNTRY
+        params['country'] = COUNTRY
     if LATEST_MEASUREMENT:
         params['date_from'] = LATEST_MEASUREMENT
 
     _, _ret = API.measurements(**params)
-    
+
     ret = [(elem['date']['utc'], elem['value']) for elem in _ret['results']]
 
     if len(ret):
@@ -92,6 +94,7 @@ def get_results(data='pm25'):
         update_city_in_db()
 
     return ret
+
 
 @APP.route('/')
 def root():
@@ -101,13 +104,17 @@ def root():
     danger_list = Record.query.filter(Record.value >= 10).all()
     all_list = Record.query.all()
 
-    page_params = {'CITY':CITY, 'COUNTRY':COUNTRY, 'danger_list':danger_list, 'data':'PM25', 'num_risky':len(danger_list), 'num_all': len(all_list)}
+    page_params = {'CITY': CITY, 'COUNTRY': COUNTRY,
+                   'danger_list': danger_list,
+                   'data': 'PM25', 'num_risky': len(danger_list),
+                   'num_all': len(all_list)}
+
     return render_template('aq_layout.html', **page_params)
 
 
 @APP.route('/refresh', methods=["POST"])
 def refresh():
-    
+
     get_city_from_db()
     data = get_results()
     for elem in data:
@@ -116,16 +123,28 @@ def refresh():
     DB.session.commit()
     return root()
 
+
 @APP.route('/change', methods=["POST"])
 def change():
     global CITY, COUNTRY, LATEST_MEASUREMENT
 
+    def sanitize(cc):
+        if cc is not None:
+            cc = cc.strip()
+
+            if len(cc) != 2 or not cc.isupper():
+                cc = None
+        return cc
+
     form_data = request.form
+    print(form_data)
 
     CITY = form_data['city_name']
-    country_code = form_data['country_code']
-    COUNTRY= country_code if country_code else None
+    COUNTRY = sanitize(form_data['country_code'])
+
     LATEST_MEASUREMENT = None
+
+    print(CITY, COUNTRY, LATEST_MEASUREMENT)
 
     DB.drop_all()
     DB.create_all()
@@ -134,6 +153,7 @@ def change():
 
     return refresh()
 
+
 if __name__ == "__main__":
-    
+
     APP.run(debug=True)
